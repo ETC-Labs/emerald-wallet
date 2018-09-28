@@ -11,7 +11,19 @@ import screen from '../../../store/wallet/screen';
 import launcher from '../../../store/launcher';
 import Account from './account';
 
-import styles from './list.scss';
+const styles = {
+  container: {
+    marginBottom: '10px',
+  },
+
+  listItem: {
+    marginBottom: '10px',
+  },
+
+  hiddenListItem: {
+    opacity: '0.4',
+  },
+};
 
 const log = createLogger('AccountList');
 const cx = classNames.bind(styles);
@@ -21,21 +33,25 @@ const AccountList = translate('accounts')((props) => {
   const { accounts, showFiat } = props;
   const { openAccount, createTx, showReceiveDialog, muiTheme } = props;
   return (
-    <div className={ styles.container } >
+    <div style={ styles.container } >
       {accounts.map((account) => {
-        const className = cx({
-          listItem: true,
-          hiddenListItem: account.get('hidden'),
-        });
-        return (<div className={ className } key={ account.get('id') } style={{border: `1px solid ${muiTheme.palette.borderColor}`}}>
-          <Account
-            showFiat={ showFiat }
-            account={ account }
-            openAccount={ openAccount }
-            createTx={ createTx }
-            showReceiveDialog={ showReceiveDialog }
-          />
-        </div>);
+         const itemStyles = {
+           marginBottom: '10px',
+           border: `1px solid ${muiTheme.palette.borderColor}`,
+         };
+
+         if (account.get('hidden')) {
+           itemStyles.opacity = '0.4';
+         }
+         return (<div key={ account.get('id') } style={itemStyles}>
+           <Account
+             showFiat={ showFiat }
+             account={ account }
+             openAccount={ openAccount }
+             createTx={ createTx }
+             showReceiveDialog={ showReceiveDialog }
+           />
+         </div>);
       })}
     </div>
   );
@@ -63,4 +79,3 @@ export default connect(
     },
   })
 )(muiThemeable()(AccountList));
-

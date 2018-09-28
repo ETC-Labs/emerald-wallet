@@ -1,28 +1,42 @@
-// @flow
 import React from 'react';
-import { ToggleButtonGroup, ToggleButton } from 'react-bootstrap';
+import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
+import muiThemeable from 'material-ui/styles/muiThemeable';
 
-/**
- * TODO: After Material-UI v 1.0 release switch to ToggleButton
- * (see: https://github.com/callemall/material-ui/pull/7551)
- *
- */
+const styles = {
+  block: {
+    maxWidth: 250,
+  },
+  radioButton: {
+    marginRight: '15px',
+  },
+  radioButtonGroup: {
+    display: 'inline-flex',
+  },
+  color: {
+    color: 'rgb(177, 191, 183)'
+  }
+};
 
-type Props = {
-  value: string,
-  onChange: Function
-}
+class Filter extends React.Component {
+  filterChanged = (ev) => {
+    return this.props.onChange(ev.target.value);
+  }
 
-class Filter extends React.Component<Props> {
   render() {
     return (
-      <ToggleButtonGroup name="options" type="radio" defaultValue={this.props.value || 'ALL'} value={this.props.value} onChange={this.props.onChange}>
-        <ToggleButton value={'ALL'}>ALL</ToggleButton>
-        <ToggleButton value={'IN'}>IN</ToggleButton>
-        <ToggleButton value={'OUT'}>OUT</ToggleButton>
-      </ToggleButtonGroup>
+      <RadioButtonGroup style={styles.radioButtonGroup} name="options" defaultSelected="ALL" onChange={this.filterChanged} selectedValue={this.props.value}>
+        <RadioButton value="ALL" label="ALL" style={styles.radioButton}
+          labelStyle={styles.color}
+        />
+        <RadioButton value="IN" label="IN" style={styles.radioButton}
+          labelStyle={styles.color}
+        />
+        <RadioButton value="OUT" label="OUT" style={styles.radioButton}
+          labelStyle={styles.color}
+        />
+      </RadioButtonGroup>
     );
   }
 }
 
-export default Filter;
+export default muiThemeable()(Filter);

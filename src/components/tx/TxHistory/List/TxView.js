@@ -10,7 +10,6 @@ import { Forward as ArrowRightIcon } from 'emerald-js-ui/lib/icons3';
 import AccountBalance from '../../../accounts/Balance';
 import TokenUnits from '../../../../lib/tokenUnits';
 import { link, tables } from '../../../../lib/styles';
-import classes from './list.scss';
 import i18n from '../../../../i18n/i18n';
 import { TokenAbi } from '../../../../lib/erc20';
 
@@ -92,8 +91,8 @@ export const TxView = (props) => {
   }
 
   return (
-    <TableRow selectable={false}>
-      <TableRowColumn style={{ width: 100, paddingLeft: '0', ...styles.tablePadding }}>
+      <TableRow selectable={false} style={{ height: '68px' }}>
+      <TableRowColumn style={{ width: '15%' }}>
         {txValue && <AccountBalance
           fiatStyle={fiatStyle}
           symbol={ symbol }
@@ -103,20 +102,24 @@ export const TxView = (props) => {
           withAvatar={ false }
         /> }
       </TableRowColumn>
-      <TableRowColumn style={{width: 60, ...link, ...styles.tablePadding}} >
+
+      <TableRowColumn style={{ ...link, width: '10%' }} >
         { txStatus }
       </TableRowColumn>
-      <TableRowColumn style={{paddingLeft: '5px'}}>
+
+      <TableRowColumn style={{ width: '35%' }}>
         <AddressAvatar
           addr={tx.get('from')}
           primary={fromAccount.get('name')}
           onAddressClick={() => openAccount(tx.get('from'))}
         />
       </TableRowColumn>
-      <TableRowColumn className={classes.columnArrow} style={{textOverflow: 'inherit', ...styles.tablePadding}}>
+
+      <TableRowColumn style={{ width: '4%' }}>
         <ArrowRightIcon style={{color: muiTheme.palette.secondaryTextColor}} />
       </TableRowColumn>
-      <TableRowColumn style={{paddingLeft: '5px', ...styles.tablePadding}}>
+
+      <TableRowColumn>
         {tx.get('to') &&
         <AddressAvatar
           addr={tx.get('to')}
@@ -124,6 +127,7 @@ export const TxView = (props) => {
           onAddressClick={() => openAccount(tx.get('to'))}
         />}
       </TableRowColumn>
+
     </TableRow>
   );
 };

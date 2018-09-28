@@ -19,10 +19,20 @@ import AccountEdit from '../AccountEdit';
 import TransactionsList from '../../tx/TxHistory';
 import AccountBalance from '../Balance';
 import SecondaryMenu from '../SecondaryMenu';
-import classes from './show.scss';
 import TokenBalances from '../TokenBalances';
 
 const log = createLogger('AccountShow');
+
+const AccountStyles = {
+  transContainer: {
+    marginTop: '20px',
+  },
+
+  qrCodeContainer: {
+    flexBasis: '30%',
+    backgroundColor: 'white',
+  },
+};
 
 export class AccountShow extends React.Component {
   constructor(props) {
@@ -93,16 +103,16 @@ export class AccountShow extends React.Component {
                 </div>
                 <div style={ styles.right }>
                   {!this.state.edit && <AddressAvatar
-                    editable
-                    addr={account.get('id')}
-                    description={account.get('description')}
-                    name={account.get('name')}
-                    onEditClick={this.handleEdit}
+                                         editable
+                                         addr={account.get('id')}
+                                         description={account.get('description')}
+                                         name={account.get('name')}
+                                         onEditClick={this.handleEdit}
                   />}
                   {this.state.edit && <AccountEdit
-                    account={account}
-                    submit={this.handleSave}
-                    cancel={this.cancelEdit}
+                                        account={account}
+                                        submit={this.handleSave}
+                                        cancel={this.cancelEdit}
                   />}
                 </div>
               </Row>
@@ -139,7 +149,7 @@ export class AccountShow extends React.Component {
               </Row>
             </div>
 
-            <div className={ classes.qrCodeContainer }>
+            <div style={ AccountStyles.qrCodeContainer }>
               <QRCode value={ account.get('id') } />
             </div>
           </div>
@@ -147,7 +157,7 @@ export class AccountShow extends React.Component {
           <div style={{paddingBottom: '20px'}} />
         </Page>
 
-        <div className={ classes.transContainer }>
+        <div styles={ AccountStyles.transContainer }>
           <TransactionsList transactions={ transactions } accountId={ account.get('id') } />
         </div>
       </Fragment>

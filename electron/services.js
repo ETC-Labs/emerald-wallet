@@ -7,8 +7,6 @@ const newGethDownloader = require('./geth/downloader').newGethDownloader;
 const { check, waitRpc } = require('./nodecheck');
 const { getBinDir, getLogDir, isValidChain } = require('./utils');
 
-require('es6-promise').polyfill();
-
 const LOCAL_RPC_URL = 'http://localhost:8545';
 
 const SERVICES = {
@@ -93,10 +91,7 @@ class Services {
   }
 
   start() {
-    return Promise.all([
-      this.startGeth(),
-      this.startConnector(),
-    ]);
+    return this.startConnector().then(() => this.startGeth());
   }
 
   shutdown() {
@@ -118,15 +113,11 @@ class Services {
   }
 
   tryExistingGeth(url) {
-    return new Promise((resolve, reject) => {
-      check(url).then((status) => {
-        resolve({
-          name: status.chain,
-          id: status.chainId,
-          clientVersion: status.clientVersion,
-        });
-      }).catch(reject);
-    });
+    return check(url).then((status) => ({
+      name: status.chain,
+      id: status.chainId,
+      clientVersion: status.clientVersion,
+    }));
   }
 
   startNoneRpc() {
@@ -162,52 +153,54 @@ class Services {
       this.notify.chain(this.setup.chain.name, this.setup.chain.id);
       this.notifyEthRpcStatus();
 
-
       return new LocalGeth(null, getLogDir(), this.setup.chain.name, 8545);
     }).catch((e) => {
-      log.error(e);
       log.info("Can't find existing RPC. Try to launch");
       return this.startLocalRpc();
     });
   }
 
   startLocalRpc() {
-    return new Promise((resolve, reject) => {
-      const gethDownloader = newGethDownloader(this.notify, getBinDir());
-      gethDownloader.downloadIfNotExists().then(() => {
-        this.notify.info('Launching Geth backend');
-        this.gethStatus = STATUS.STARTING;
-        this.geth = new LocalGeth(getBinDir(), getLogDir(), this.setup.chain.name, 8545);
+    const gethDownloader = newGethDownloader(this.notify, getBinDir());
+    log.info('downloading geth if necessary');
+    return gethDownloader.downloadIfNotExists().then(() => {
+      this.notify.info('Launching Geth backend');
+      this.gethStatus = STATUS.STARTING;
+      this.geth = new LocalGeth(getBinDir(), getLogDir(), this.setup.chain.name, 8545);
 
-        this.geth.launch().then((geth) => {
-          geth.on('exit', (code) => {
-            this.gethStatus = STATUS.NOT_STARTED;
-            log.error(`geth process exited with code: ${code}`);
-          });
-          if (geth.pid > 0) {
-            waitRpc(this.geth.getUrl()).then((clientVersion) => {
-              this.gethStatus = STATUS.READY;
-              log.info(`RPC is ready: ${clientVersion}`);
+      log.info('finished getting geth. Launching geth backend now');
+      return this.geth.launch();
+    }).then((gethProc) => {
+      log.info('geth process started');
 
-              this.setup.geth.url = this.geth.getUrl();
-              this.setup.geth.type = 'local';
-              this.setup.geth.clientVersion = clientVersion;
+      if (gethProc.pid <= 0) {
+        throw new Error('geth not launched');
+      }
 
-              this.notify.info('Local Geth RPC API is ready');
-              this.notify.chain(this.setup.chain.name, this.setup.chain.id);
-              this.notifyEthRpcStatus();
-
-              resolve(this.geth);
-            }).catch(reject);
-          } else {
-            reject(new Error('Geth not launched'));
-          }
-        }).catch(reject);
-      }).catch((err) => {
-        log.error('Unable to download Geth', err);
-        this.notify.info(`Unable to download Geth: ${err}`);
-        reject(err);
+      gethProc.on('exit', (code) => {
+        this.gethStatus = STATUS.NOT_STARTED;
+        log.error(`geth process exited with code: ${code}`);
       });
+
+      return waitRpc(this.geth.getUrl());
+    }).then((clientVersion) => {
+      this.gethStatus = STATUS.READY;
+      log.info(`RPC is ready: ${clientVersion}`);
+
+      this.setup.geth.url = this.geth.getUrl();
+      this.setup.geth.type = 'local';
+      this.setup.geth.clientVersion = clientVersion;
+
+      this.notify.info('Local Geth RPC API is ready');
+      this.notify.chain(this.setup.chain.name, this.setup.chain.id);
+      this.notifyEthRpcStatus();
+
+      return this.geth;
+    }).catch((err) => {
+      log.info('Unable to download & start Geth', err);
+      log.error(err);
+      this.notify.info(`Unable to download Geth: ${err}`);
+      throw err;
     });
   }
 
