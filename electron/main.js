@@ -39,7 +39,12 @@ app.on('ready', () => {
 
   services.useSettings(settings.toJS())
     .then(() => services.start())
-    .then(() => ipc({ settings, services }));
+    .then(() => ipc({ settings, services }))
+    .catch((e) => {
+      log.error(new Error('FATAL ERROR'));
+      log.error(e);
+      process.exit(1);
+    });
 });
 
 

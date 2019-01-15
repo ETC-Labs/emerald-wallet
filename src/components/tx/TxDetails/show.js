@@ -11,12 +11,22 @@ import DashboardButton from 'components/common/DashboardButton';
 import { Back } from 'emerald-js-ui/lib/icons3';
 import { gotoScreen } from '../../../store/wallet/screen/screenActions';
 import { toDate } from '../../../lib/convert';
-import { Form, styles, Row } from '../../../elements/Form';
+import { Form, styles as formStyles, Row } from '../../../elements/Form';
 import TxStatus from './status';
 import { Currency } from '../../../lib/currency';
 import createLogger from '../../../utils/logger';
 import TxInputData from './TxInputData';
-import classes from './show.scss';
+
+const styles = {
+  value: {
+    marginBottom: '5px',
+  },
+
+  txData: {
+    overflowX: 'auto',
+    overflowWrap: 'break-word',
+  },
+};
 
 const log = createLogger('TxDetails');
 
@@ -52,24 +62,24 @@ export const TransactionShow = (props: Props) => {
   return (
     <Page title="Transaction Details" leftIcon={ <Back onClick={() => goBack(account)} /> }>
       <Row>
-        <div style={styles.left}>
+      <div style={formStyles.left}>
           <div style={fieldNameStyle}>Date</div>
         </div>
-        <div style={styles.right}>
+      <div style={formStyles.right}>
           {transaction.get('timestamp') ? toDate(transaction.get('timestamp')) : null}
         </div>
       </Row>
       <Row>
-        <div style={styles.left}>
+      <div style={formStyles.left}>
           <div style={fieldNameStyle}>Value</div>
         </div>
-        <div style={styles.right}>
+      <div style={formStyles.right}>
           <div style={{display: 'flex'}}>
             <div>
-              <div className={ classes.value }>
+              <div style={ styles.value }>
                 { transaction.get('value') ? `${new Wei(transaction.get('value')).getEther()} ETC` : '--' }
               </div>
-              {showFiat && <div className={ classes.value }>
+      {showFiat && <div style={ styles.value }>
                 { fiatAmount }
               </div> }
             </div>
@@ -83,28 +93,28 @@ export const TransactionShow = (props: Props) => {
       <br />
 
       <Row>
-        <div style={styles.left}>
+        <div style={formStyles.left}>
           <div style={fieldNameStyle}>Hash</div>
         </div>
-        <div style={styles.right}>
+        <div style={formStyles.right}>
           {transaction.get('hash')}
         </div>
       </Row>
 
       <Row>
-        <div style={styles.left}>
+        <div style={formStyles.left}>
           <div style={fieldNameStyle}>Nonce</div>
         </div>
-        <div style={styles.right}>
+        <div style={formStyles.right}>
           { transaction.get('nonce') }
         </div>
       </Row>
 
       <Row>
-        <div style={styles.left}>
+        <div style={formStyles.left}>
           <div style={fieldNameStyle}>From</div>
         </div>
-        <div style={{...styles.right, alignItems: 'center'}}>
+        <div style={{...formStyles.right, alignItems: 'center'}}>
           <Account
             addr={transaction.get('from')}
             identity
@@ -115,10 +125,10 @@ export const TransactionShow = (props: Props) => {
       </Row>
 
       <Row>
-        <div style={styles.left}>
+        <div style={formStyles.left}>
           <div style={fieldNameStyle}>To</div>
         </div>
-        <div style={{...styles.right, alignItems: 'center'}}>
+        <div style={{...formStyles.right, alignItems: 'center'}}>
           {transaction.get('to') &&
            <Account
              addr={transaction.get('to')}
@@ -133,7 +143,7 @@ export const TransactionShow = (props: Props) => {
       <br />
 
       <Row>
-        <div style={styles.left}>
+        <div style={formStyles.left}>
           <div style={fieldNameStyle}>Block</div>
         </div>
         <div style={styles.right}>
@@ -142,18 +152,18 @@ export const TransactionShow = (props: Props) => {
       </Row>
 
       <Row>
-        <div style={styles.left}>
+        <div style={formStyles.left}>
           <div style={fieldNameStyle}>Input Data</div>
         </div>
         <div style={styles.right}>
-          <div className={ classes.txData }>
+          <div style={ styles.txData }>
             <TxInputData data={transaction.get('data')} />
           </div>
         </div>
       </Row>
 
       <Row>
-        <div style={styles.left}>
+        <div style={formStyles.left}>
           <div style={fieldNameStyle}>GAS</div>
         </div>
         <div style={styles.right}>
@@ -163,9 +173,9 @@ export const TransactionShow = (props: Props) => {
       <br />
 
       <Row style={{marginBottom: 0}}>
-        <div style={styles.left}>
+        <div style={formStyles.left}>
         </div>
-        <div style={styles.right}>
+        <div style={formStyles.right}>
           <ButtonGroup>
             <Button
               onClick={ () => props.cancel() }

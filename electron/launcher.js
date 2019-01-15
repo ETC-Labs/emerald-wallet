@@ -4,7 +4,6 @@ const os = require('os');
 const path = require('path');
 
 const log = require('./logger');
-require('es6-promise').polyfill();
 
 const suffix = os.platform() === 'win32' ? '.exe' : '';
 

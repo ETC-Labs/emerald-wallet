@@ -1,5 +1,3 @@
-require('es6-promise').polyfill();
-
 const { JsonRpc, HttpTransport, EthRpc, NodeChecker } = require('emerald-js');
 const log = require('./logger');
 
@@ -11,8 +9,10 @@ function check(url) {
 
 function waitRpc(url) {
   const checker = new NodeChecker(new EthRpc(new JsonRpc(new HttpTransport(url))));
+  log.info('made checker..')
   return new Promise((resolve, reject) => {
     const retry = (n) => {
+      log.info('checking if exists')
       checker.exists().then((clientVersion) => resolve(clientVersion)).catch(() => {
         if (n > 0) {
           log.debug(`RPC ${url} not exists, going retry after 1000 ms`);
